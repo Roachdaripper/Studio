@@ -372,26 +372,31 @@ namespace AssetStudio
                 Logger.Verbose($"Before Size: {m_Header.size} compressedBlocksInfoSize: {m_Header.compressedBlocksInfoSize} uncompressedBlocksInfoSize: {m_Header.uncompressedBlocksInfoSize} flags: {m_Header.flags}");
                 long sizeOffset = m_Header.size - reader.BaseStream.Length;
                 Logger.Verbose($"sizeOffset: {sizeOffset}");
-                if (sizeOffset == 0x16)
+                switch (sizeOffset)
                 {
-                    m_Header.compressedBlocksInfoSize -= 0xCA;
-                    m_Header.uncompressedBlocksInfoSize -= 0xCA;
-                }
-                else if (sizeOffset == 0x1A)
-                {
-                    m_Header.compressedBlocksInfoSize -= 0xB4;
-                    m_Header.uncompressedBlocksInfoSize -= 0xAA;
-                }
-                else if (sizeOffset == 0x14)
-                {
-                    m_Header.compressedBlocksInfoSize -= 0xAA;
-                    m_Header.uncompressedBlocksInfoSize -= 0xBE;
-                    m_Header.flags -= 0x03;
-                    reader.ReadUInt16();
-                }
-                else
-                {
-                    Logger.Warning($"Unknown size offset: {sizeOffset}");
+                    case 0x16:
+                        m_Header.compressedBlocksInfoSize -= 0xCA;
+                        m_Header.uncompressedBlocksInfoSize -= 0xCA;
+                        break;
+                    case 0x1A:
+                        m_Header.compressedBlocksInfoSize -= 0xB4;
+                        m_Header.uncompressedBlocksInfoSize -= 0xAA;
+                        break;
+                    case 0x14:
+                        m_Header.compressedBlocksInfoSize -= 0xAA;
+                        m_Header.uncompressedBlocksInfoSize -= 0xBE;
+                        m_Header.flags -= 0x03;
+                        reader.ReadUInt16();
+                        break;
+                    case 0x1E:
+                        m_Header.compressedBlocksInfoSize -= 0xF0;
+                        m_Header.uncompressedBlocksInfoSize -= 0xE6;
+                        m_Header.flags -= 0x03;
+                        reader.ReadUInt16();
+                        break;
+                    default:
+                        Logger.Warning($"Unknown size offset: {sizeOffset}");
+                        break;
                 }
                 Logger.Verbose($"After Size: {m_Header.size} compressedBlocksInfoSize: {m_Header.compressedBlocksInfoSize} uncompressedBlocksInfoSize: {m_Header.uncompressedBlocksInfoSize} flags: {m_Header.flags}");
             }
